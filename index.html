@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rollo 35mm — Nuestros Recuerdos</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Tipografías estilo máquina de escribir, código de película y editorial vintage -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&family=Special+Elite&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --amber-glow: #f59e0b;
+            --amber-code: #ff9f1c;
+            --cream-paper: #f4ebd9;
+            --charcoal-dark: #0f0d0c;
+            --film-base: #141210;
+            --darkroom-red: #991b1b;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--charcoal-dark);
+            color: var(--cream-paper);
+            font-family: 'Courier Prime', monospace;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        .font-typewriter {
+            font-family: 'Special Elite', monospace;
+        }
+
+        .font-serif-vintage {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .font-film-code {
+            font-family: 'Share Tech Mono', monospace;
+            letter-spacing: 0.12em;
+        }
+
+        /* Efecto de viñeta cálida de cuarto oscuro y luz de proyector */
+        .darkroom-backdrop {
+            background: 
+                radial-gradient(circle at 50% 42%, rgba(217, 119, 6, 0.16) 0%, rgba(120, 53, 15, 0.08) 45%, rgba(10, 9, 8, 0.96) 100%),
+                repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 2px);
+        }
+
+        body.safelight-mode .darkroom-backdrop {
+            background: 
+                radial-gradient(circle at 50% 42%, rgba(220, 38, 38, 0.22) 0%, rgba(127, 29, 29, 0.12) 50%, rgba(8, 4, 4, 0.98) 100%);
+        }
+
+        /* Textura sutil de grano de película (SVG data URI animado suavemente) */
+        .film-grain {
+            position: fixed;
+            inset: -50%;
+            width: 200%;
+            height: 200%;
+            pointer-events: none;
+            z-index: 45;
+            opacity: 0.055;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            animation: grainShift 6s steps(8) infinite;
+        }
+
+        @keyframes grainShift {
+            0%, 100% { transform: translate(0, 0); }
+            20% { transform: translate(-2%, 2%); }
+            40% { transform: translate(2%, -3%); }
+            60% { transform: translate(-3%, -1%); }
+            80% { transform: translate(1%, 3%); }
+        }
+
+        /* Viñeta perimetral fija */
+        .vignette-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 40;
+            box-shadow: inset 0 0 130px rgba(0, 0, 0, 0.88), inset 0 0 45px rgba(180, 83, 9, 0.15);
+        }
+
+        /* Haz de luz detrás del rollo de 35mm (Backlight de mesa de revelado) */
+        .light-table-glow {
+            position: relative;
+        }
+        .light-table-glow::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 78%;
+            transform: translateY(-50%);
+            background: linear-gradient(90deg, 
+                rgba(254, 243, 199, 0.03) 0%, 
+                rgba(251, 191, 36, 0.14) 20%, 
+                rgba(254, 243, 199, 0.22) 50%, 
+                rgba(251, 191, 36, 0.14) 80%, 
+                rgba(254, 243, 199, 0.03) 100%);
+            filter: blur(22px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Estructura del Rollo de Película de 35mm */
+        .film-strip-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            padding: 24px 0;
+            cursor: grab;
+            z-index: 10;
+        }
+
+        .film-strip-container:active {
+            cursor: grabbing;
+        }
+
+        .film-strip-track {
+            display: flex;
+            width: max-content;
+            will-change: transform;
+            background-color: #11100f;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.95),
+                0 0 35px rgba(245, 158, 11, 0.14),
+                inset 0 2px 3px rgba(255, 255, 255, 0.08),
+                inset 0 -2px 3px rgba(255, 255, 255, 0.08);
+            border-top: 2px solid #292524;
+            border-bottom: 2px solid #292524;
+            position: relative;
+        }
+
+        /* Brillo celuloide diagonal sutil sobre toda la tira */
+        .film-strip-track::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, 
+                rgba(255,255,255,0.06) 0%, 
+                transparent 12%, 
+                transparent 88%, 
+                rgba(255,255,255,0.05) 100%);
+            pointer-events: none;
+        }
+
+        /* Cada unidad de fotograma de 35mm */
+        .film-unit {
+            width: 340px;
+            flex-shrink: 0;
+            background-color: #12100e;
+            padding: 0 14px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            border-right: 1px solid rgba(255, 255, 255, 0.03);
+            transition: background-color 0.3s ease;
+        }
+
+        @media (min-width: 768px) {
+            .film-unit {
+                width: 390px;
+                padding: 0 18px;
+            }
+        }
+
+        .film-unit:hover {
+            background-color: #1a1613;
+        }
+
+        /* Perforaciones del rollo (Sprocket Holes) */
+        .sprocket-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 28px;
+            padding: 0 4px;
+        }
+
+        .sprocket-hole {
+            width: 20px;
+            height: 14px;
+            border-radius: 3px;
+            background-color: #090807;
+            box-shadow: 
+                inset 0 2px 4px rgba(0,0,0,0.95),
+                0 1px 0 rgba(255, 255, 255, 0.12),
+                0 0 8px rgba(251, 191, 36, 0.08);
+            border: 1px solid rgba(45, 40, 35, 0.8);
+        }
+
+        /* Códigos ámbar en los bordes del negativo (Kodak / Fujifilm style) */
+        .edge-code-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 20px;
+            padding: 0 6px;
+            color: var(--amber-code);
+            font-size: 11px;
+            text-shadow: 0 0 6px rgba(245, 158, 11, 0.45);
+            opacity: 0.88;
+        }
+
+        /* Ventana de imagen del fotograma */
+        .frame-window {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            background-color: #080706;
+            border-radius: 3px;
+            overflow: hidden;
+            box-shadow: 
+                inset 0 0 12px rgba(0,0,0,0.9),
+                0 0 0 1px rgba(255, 190, 100, 0.12);
+            cursor: pointer;
+        }
+
+        @media (min-width: 768px) {
+            .frame-window {
+                height: 390px;
+            }
+        }
+
+        .frame-window img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), filter 0.4s ease;
+        }
+
+        .film-unit:hover .frame-window img {
+            transform: scale(1.045);
+        }
+
+        /* Quemado de luz sutil en esquina de fotograma (Light Leak analógico) */
+        .light-leak-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(125deg, rgba(251, 146, 60, 0.14) 0%, transparent 35%, transparent 75%, rgba(220, 38, 38, 0.10) 100%);
+            mix-blend-mode: screen;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        /* Filtros fotográficos aplicables a todo el rollo */
+        .filter-original .frame-media {
+            filter: contrast(1.04) saturate(1.05) sepia(0.06);
+        }
+        .filter-vintage70s .frame-media {
+            filter: sepia(0.38) contrast(1.12) brightness(1.03) saturate(1.25) hue-rotate(-8deg);
+        }
+        .filter-sepia .frame-media {
+            filter: sepia(0.88) contrast(1.15) brightness(0.96);
+        }
+        .filter-bw .frame-media {
+            filter: grayscale(1) contrast(1.28) brightness(1.02);
+        }
+        .filter-negative .frame-media {
+            filter: invert(0.92) hue-rotate(175deg) contrast(1.15) saturate(1.2);
+        }
+
+        /* Estilo de consola / proyector analógico */
+        .analog-console {
+            background: linear-gradient(180deg, #231f1d 0%, #171412 100%);
+            border: 1px solid #3f3832;
+            box-shadow: 
+                0 15px 35px rgba(0,0,0,0.8),
+                inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+
+        .tactile-btn {
+            background: linear-gradient(180deg, #322c28 0%, #1f1b18 100%);
+            border: 1px solid #4a4039;
+            box-shadow: 
+                0 4px 0 #0f0d0b,
+                0 6px 12px rgba(0,0,0,0.6),
+                inset 0 1px 0 rgba(255,255,255,0.12);
+            transition: all 0.12s ease;
+        }
+
+        .tactile-btn:hover {
+            border-color: #d97706;
+            color: #fef3c7;
+        }
+
+        .tactile-btn:active, .tactile-btn.active-btn {
+            transform: translateY(3px);
+            box-shadow: 
+                0 1px 0 #0f0d0b,
+                inset 0 2px 5px rgba(0,0,0,0.7);
+            border-color: #f59e0b;
+            background: linear-gradient(180deg, #29221c 0%, #382c1e 100%);
+        }
+
+        /* Deslizador de velocidad estilo fader analógico */
+        input[type=range].retro-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            background: #0c0a09;
+            height: 8px;
+            border-radius: 4px;
+            border: 1px solid #38312c;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.9);
+        }
+
+        input[type=range].retro-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 24px;
+            border-radius: 3px;
+            background: linear-gradient(180deg, #f59e0b 0%, #b45309 100%);
+            border: 1px solid #fef3c7;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.8);
+        }
+
+        /* Cinta adhesiva vintage para notas */
+        .masking-tape {
+            background-color: rgba(243, 229, 195, 0.92);
+            color: #29221c;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.45);
+        }
+
+        /* Animación de parpadeo suave de proyector */
+        @keyframes projectorFlicker {
+            0%, 100% { opacity: 1; }
+            92% { opacity: 1; }
+            93% { opacity: 0.96; }
+            94% { opacity: 1; }
+            97% { opacity: 0.98; }
+        }
+
+        .projector-flicker {
+            animation: projectorFlicker 5s infinite;
+        }
+
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #12100e;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #443b34;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #d97706;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between relative selection:bg-amber-600 selection:text-black">
+
+    <!-- Grano de película y viñeta analógica -->
+    <div class="film-grain"></div>
+    <div class="vignette-overlay"></div>
+
+    <!-- Input oculto para cargar múltiples fotos a la vez -->
+    <input type="file" id="bulkFileInput" accept="image/*" multiple class="hidden">
+    <!-- Input oculto para cambiar la foto de un fotograma individual -->
+    <input type="file" id="singleFrameFileInput" accept="image/*" class="hidden">
+
+    <!-- Overlay de Arrastrar y Soltar (Drag & Drop) en toda la pantalla -->
+    <div id="dropZoneOverlay" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex-col items-center justify-center border-4 border-dashed border-amber-500 m-4 rounded-2xl p-8 text-center">
+        <div class="w-24 h-24 rounded-full bg-amber-500/20 border border-amber-400 flex items-center justify-center mb-6 animate-bounce">
+            <span class="text-5xl">🎞️</span>
+        </div>
+        <h2 class="font-serif-vintage text-3xl md:text-5xl text-amber-300 mb-3">Suelta tus fotografías aquí</h2>
+        <p class="text-amber-100/80 max-w-lg text-base md:text-lg">
+            Las revelaremos instantáneamente dentro de los 10 fotogramas del rollo de 35mm.
+        </p>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="darkroom-backdrop flex-1 flex flex-col justify-between relative z-10 pb-12">
+
+        <!-- ENCABEZADO ESTILO CUARTO OSCURO / CÁMARA ANALÓGICA -->
+        <header class="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-3">
+            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-amber-900/40 pb-5">
+                
+                <!-- Identificador de Rollo y Título -->
+                <div class="flex items-start gap-4">
+                    <!-- Icono de Carrete 35mm SVG -->
+                    <div class="w-14 h-14 rounded-xl bg-stone-900 border border-amber-600/50 flex items-center justify-center shadow-lg shrink-0 relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-transparent"></div>
+                        <svg class="w-9 h-9 text-amber-400 group-hover:rotate-45 transition-transform duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                            <rect x="2" y="4" width="20" height="16" rx="2"/>
+                            <line x1="2" y1="8" x2="22" y2="8"/>
+                            <line x1="2" y1="16" x2="22" y2="16"/>
+                            <line x1="6" y1="4" x2="6" y2="8"/>
+                            <line x1="10" y1="4" x2="10" y2="8"/>
+                            <line x1="14" y1="4" x2="14" y2="8"/>
+                            <line x1="18" y1="4" x2="18" y2="8"/>
+                            <line x1="6" y1="16" x2="6" y2="20"/>
+                            <line x1="10" y1="16" x2="10" y2="20"/>
+                            <line x1="14" y1="16" x2="14" y2="20"/>
+                            <line x1="18" y1="16" x2="18" y2="20"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex flex-wrap items-center gap-2 mb-1">
+                            <span class="font-film-code text-xs px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-amber-300">
+                                KODAK PORTRA 400 • 35MM
+                            </span>
+                            <span class="font-film-code text-xs px-2 py-0.5 rounded bg-red-950/80 border border-red-700/50 text-red-300 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                                CUARTO OSCURO ACTIVO
+                            </span>
+                            <span id="loadedCounterBadge" class="font-film-code text-xs px-2 py-0.5 rounded bg-stone-800 border border-stone-600 text-amber-200/90">
+                                10 EXPOSICIONES
+                            </span>
+                        </div>
+                        <h1 class="font-serif-vintage text-2xl sm:text-4xl font-bold text-amber-100 tracking-wide">
+                            Nuestra Historia en <span class="italic text-amber-400">35 Milímetros</span>
+                        </h1>
+                        <p class="text-xs sm:text-sm text-amber-200/70 mt-0.5 font-typewriter">
+                            Cada fotograma guarda un instante eterno junto a ti • Pasa el cursor o toca cualquier recuerdo para revelarlo
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Botón Destacado para Cargar Fotos Locales + Controles de Ambiente -->
+                <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-start lg:justify-end">
+                    <button id="uploadMultipleBtn" class="relative group overflow-hidden rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-600 text-stone-950 font-bold px-5 py-3 text-sm shadow-[0_0_25px_rgba(245,158,11,0.4)] hover:shadow-[0_0_35px_rgba(245,158,11,0.75)] transition-all duration-300 flex items-center gap-2.5 border border-amber-200">
+                        <span class="text-lg group-hover:scale-110 transition-transform">🎞️</span>
+                        <div class="text-left leading-tight">
+                            <span class="block text-xs sm:text-sm font-extrabold tracking-tight">Cargar tus fotos en el rollo</span>
+                            <span class="block text-[10px] font-mono opacity-85">Selecciona las 10 fotos o arrástralas aquí</span>
+                        </div>
+                    </button>
+
+                    <!-- Luz Roja de Cuarto Oscuro -->
+                    <button id="safelightBtn" class="tactile-btn px-3.5 py-2.5 rounded-xl text-xs font-film-code text-amber-200 flex items-center gap-2" title="Alternar luz roja de cuarto oscuro">
+                        <span id="safelightDot" class="w-2.5 h-2.5 rounded-full bg-red-600 shadow-[0_0_8px_#dc2626]"></span>
+                        <span class="hidden sm:inline">LUZ ROJA</span>
+                    </button>
+
+                    <!-- Sonido de Proyector Vintage (Sintetizado sin archivos externos) -->
+                    <button id="soundToggleBtn" class="tactile-btn px-3.5 py-2.5 rounded-xl text-xs font-film-code text-amber-200 flex items-center gap-2" title="Efectos de sonido de proyector y obturador">
+                        <span id="soundIcon">🔇</span>
+                        <span class="hidden sm:inline" id="soundLabel">SONIDO OFF</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Aviso inteligente si alguna imagen local necesita ser seleccionada -->
+            <div id="localFileHelperBanner" class="mt-3 hidden bg-amber-950/40 border border-amber-600/40 rounded-xl px-4 py-2.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-amber-200">
+                <div class="flex items-center gap-2.5">
+                    <span class="text-amber-400 text-base">💡</span>
+                    <span>
+                        <strong>Modo de Revelado Directo:</strong> Si el navegador bloquea la ruta local automática, haz clic en <strong>"🎞️ Cargar tus fotos en el rollo"</strong> y selecciona tus 10 fotos juntas (o haz clic sobre cualquier fotograma) para verlas al instante.
+                    </span>
+                </div>
+                <button id="dismissBannerBtn" class="text-amber-400 hover:text-amber-200 underline shrink-0 font-mono text-[11px]">Entendido</button>
+            </div>
+        </header>
+
+        <!-- SECCIÓN CENTRAL: ROLLO FOTOGRÁFICO DE 35MM PASANDO EN BUCLE INFINITO -->
+        <main class="my-auto py-2 relative">
+
+            <!-- Indicadores superiores de mesa de luz -->
+            <div class="max-w-7xl mx-auto px-6 mb-2 flex items-center justify-between text-[11px] font-film-code text-amber-400/70">
+                <div class="flex items-center gap-3">
+                    <span class="flex items-center gap-1.5">
+                        <span id="motorStatusDot" class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></span>
+                        <span id="motorStatusText">MOTOR: EN MARCHA</span>
+                    </span>
+                    <span class="hidden sm:inline text-stone-600">|</span>
+                    <span class="hidden sm:inline" id="hoverHintText">PASA EL CURSOR PARA DESACELERAR • CLIC EN FOTOGRAMA PARA AMPLIAR</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span>DIRECCIÓN: <strong id="directionReadout" class="text-amber-300">◀ IZQUIERDA</strong></span>
+                    <span class="text-stone-600">|</span>
+                    <span>FILTRO: <strong id="filterReadout" class="text-amber-300">COLOR ORIGINAL</strong></span>
+                </div>
+            </div>
+
+            <!-- Contenedor del Rollo con Haz de Luz detrás -->
+            <div class="light-table-glow">
+                <div id="filmStripViewport" class="film-strip-container filter-original projector-flicker" aria-label="Rollo fotográfico interactivo de 35mm">
+                    <div id="filmStripTrack" class="film-strip-track">
+                        <!-- Los 10 fotogramas originales + su copia para bucle infinito sin cortes se inyectan dinámicamente aquí -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guía rápida debajo del rollo -->
+            <div class="max-w-7xl mx-auto px-6 mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-amber-200/60 font-typewriter">
+                <span>✨ Puedes arrastrar el rollo manualmente con el mouse o el dedo, o hacer clic en cualquier fotograma para abrirlo en la Mesa de Luz.</span>
+                <button id="toggleContactSheetBtn" class="text-amber-400 hover:text-amber-200 underline flex items-center gap-1 font-film-code text-xs">
+                    <span>🔍 VER HOJA DE CONTACTO (10 FOTOGRAMAS)</span>
+                </button>
+            </div>
+        </main>
+
+        <!-- PANEL DE CONTROL ESTILO REPRODUCTOR / PROYECTOR ANALÓGICO -->
+        <section class="w-full max-w-6xl mx-auto px-4 sm:px-6 mt-4">
+            <div class="analog-console rounded-2xl p-4 sm:p-5">
+                <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-5">
+
+                    <!-- Controles de Transporte (Play/Pause e Invertir Dirección) -->
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div class="text-[10px] font-film-code text-amber-500/80 uppercase tracking-widest w-full sm:w-auto sm:mr-1">
+                            TRANSPORTE
+                        </div>
+
+                        <!-- Botón Play / Pause -->
+                        <button id="playPauseBtn" class="tactile-btn px-4 py-2.5 rounded-xl font-film-code text-xs sm:text-sm text-amber-100 flex items-center gap-2 min-w-[135px] justify-center">
+                            <span id="playPauseIcon" class="text-amber-400 text-base">⏸</span>
+                            <span id="playPauseLabel">PAUSAR ROLLO</span>
+                        </button>
+
+                        <!-- Botón Invertir Dirección -->
+                        <button id="reverseDirBtn" class="tactile-btn px-4 py-2.5 rounded-xl font-film-code text-xs sm:text-sm text-amber-100 flex items-center gap-2">
+                            <span class="text-amber-400">⇄</span>
+                            <span id="reverseDirLabel">INVERTIR (IZQ ↔ DER)</span>
+                        </button>
+
+                        <!-- Paso a paso por fotograma -->
+                        <div class="flex items-center gap-1.5">
+                            <button id="stepPrevBtn" class="tactile-btn px-3 py-2.5 rounded-xl font-film-code text-xs text-amber-200" title="Desplazar un fotograma a la izquierda">
+                                ⏮
+                            </button>
+                            <button id="stepNextBtn" class="tactile-btn px-3 py-2.5 rounded-xl font-film-code text-xs text-amber-200" title="Desplazar un fotograma a la derecha">
+                                ⏭
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Control Deslizante de Velocidad del Motor -->
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2.5 flex-1 max-w-md bg-stone-950/60 px-4 py-2.5 rounded-xl border border-stone-800">
+                        <div class="flex items-center justify-between w-full sm:w-auto gap-2">
+                            <label for="speedSlider" class="font-film-code text-xs text-amber-300 whitespace-nowrap flex items-center gap-1.5">
+                                <span>⚙️ VELOCIDAD:</span>
+                                <span id="speedValueDisplay" class="text-amber-400 font-bold">1.0x</span>
+                            </label>
+                        </div>
+                        <input id="speedSlider" type="range" min="0.2" max="3.0" step="0.1" value="1.0" class="retro-slider w-full">
+                    </div>
+
+                    <!-- Selector de Filtro Fotográfico Analógico -->
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                        <label for="filmFilterSelect" class="font-film-code text-xs text-amber-400/90 whitespace-nowrap">
+                            🎞️ REVELADO:
+                        </label>
+                        <div class="flex flex-wrap gap-1.5" id="filterButtonsGroup">
+                            <button data-filter="filter-original" data-label="COLOR ORIGINAL" class="filter-chip tactile-btn active-btn px-3 py-2 rounded-lg font-film-code text-xs text-amber-100">
+                                Original
+                            </button>
+                            <button data-filter="filter-vintage70s" data-label="VINTAGE CÁLIDO (70s)" class="filter-chip tactile-btn px-3 py-2 rounded-lg font-film-code text-xs text-amber-200/80">
+                                Vintage 70s
+                            </button>
+                            <button data-filter="filter-sepia" data-label="SEPIA NOSTÁLGICO" class="filter-chip tactile-btn px-3 py-2 rounded-lg font-film-code text-xs text-amber-200/80">
+                                Sepia
+                            </button>
+                            <button data-filter="filter-bw" data-label="BLANCO Y NEGRO CLÁSICO" class="filter-chip tactile-btn px-3 py-2 rounded-lg font-film-code text-xs text-amber-200/80">
+                                B&amp;N Clásico
+                            </button>
+                            <button data-filter="filter-negative" data-label="NEGATIVO DE PELÍCULA" class="filter-chip tactile-btn px-3 py-2 rounded-lg font-film-code text-xs text-amber-200/80">
+                                Negativo
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- HOJA DE CONTACTO DESPLEGABLE (Contact Sheet de los 10 Fotogramas) -->
+        <section id="contactSheetSection" class="w-full max-w-7xl mx-auto px-4 sm:px-6 mt-8 hidden">
+            <div class="bg-stone-950/90 border border-amber-700/40 rounded-2xl p-5 sm:p-6 shadow-2xl">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-stone-800 pb-4 mb-5">
+                    <div>
+                        <span class="font-film-code text-xs text-amber-500">HOJA DE CONTACTO • ARCHIVO N° 01A–10A</span>
+                        <h2 class="font-serif-vintage text-2xl text-amber-100">Índice Completo del Rollo Fotográfico</h2>
+                    </div>
+                    <p class="text-xs text-amber-200/70 font-typewriter">
+                        Haz clic en cualquier miniatura para abrirla en la Mesa de Luz o cambiar su foto individualmente.
+                    </p>
+                </div>
+                <div id="contactSheetGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                    <!-- Se llena dinámicamente -->
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- MODAL / VISOR DE MESA DE LUZ (LIGHTBOX CON LUPA DE REVELADO Y EDICIÓN DE RECUERDO) -->
+    <div id="lightboxModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-3 sm:p-6 overflow-y-auto">
+        <div class="relative w-full max-w-4xl bg-stone-950 border-2 border-amber-600/50 rounded-2xl shadow-[0_0_80px_rgba(245,158,11,0.25)] overflow-hidden my-auto">
+            
+            <!-- Barra superior de la Mesa de Luz -->
+            <div class="bg-stone-900/95 border-b border-stone-800 px-4 sm:px-6 py-3 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="px-2.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/50 font-film-code text-xs text-amber-300" id="modalFrameCode">
+                        FOTOGRAMA 01A
+                    </span>
+                    <span class="font-film-code text-xs text-stone-400 hidden sm:inline" id="modalFileName">
+                        ARCHIVO: 1000152734.jpg
+                    </span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="modalChangePhotoBtn" class="tactile-btn px-3 py-1.5 rounded-lg font-film-code text-xs text-amber-300 flex items-center gap-1.5">
+                        <span>📷</span>
+                        <span>Cambiar esta foto</span>
+                    </button>
+                    <button id="closeModalBtn" class="tactile-btn w-8 h-8 rounded-lg font-film-code text-sm text-amber-200 flex items-center justify-center" aria-label="Cerrar mesa de luz">
+                        ✕
+                    </button>
+                </div>
+            </div>
+
+            <!-- Cuerpo del Visor de Mesa de Luz -->
+            <div class="grid grid-cols-1 md:grid-cols-12">
+                
+                <!-- Columna Izquierda: Marco de 35mm Iluminado -->
+                <div class="md:col-span-7 bg-[#0b0a09] p-4 sm:p-6 flex flex-col justify-center items-center relative border-b md:border-b-0 md:border-r border-stone-800">
+                    
+                    <!-- Perforaciones superiores del visor -->
+                    <div class="w-full flex justify-between px-2 mb-2">
+                        <div class="sprocket-hole"></div><div class="sprocket-hole"></div><div class="sprocket-hole"></div><div class="sprocket-hole"></div><div class="sprocket-hole"></div><div class="sprocket-hole"></div><div class="sprocket-hole"></div><div class="sprocket-hole"></div>
+                    </div>
+
+                    <!-- Imagen ampliada o placeholder -->
+                    <div id="modalMediaWrapper" class="w-full h-[340px] sm:h-[420px] bg-black rounded border border-amber-500/20 overflow-hidden relative flex items-center justify-center shadow-inner filter-original">
+                        <img id="modalImage" src="" alt="Fotograma ampliado" class="w-full h-full object-contain frame-media">
+                        <div id="modalPlaceholder" class="hidden inset-0 w-full h-full"></div>
+                        <div class="light-leak-overlay"></div>
+                    </div>
+
+                    <!-- Perforaciones inferiores del visor -->
+                    <div class="w-full flex justify-between px-2 mt-2">
+                        <div class="sprocket-hole"></div><div class="sprocket-hole"></div><div class="sprocket-hole"></div><div class="sprocket-hole"></div><div class="sprocket-hole"></div><div class="sprocket-hole"></div><div class="sprocket-hole"></div><div class="sprocket-hole"></div>
+                    </div>
+
+                    <!-- Botones Anterior / Siguiente Fotograma -->
+                    <div class="w-full flex items-center justify-between mt-3 pt-2 border-t border-stone-900">
+                        <button id="modalPrevBtn" class="tactile-btn px-3.5 py-1.5 rounded-lg font-film-code text-xs text-amber-200 flex items-center gap-1.5">
+                            <span>◀</span> <span>Anterior</span>
+                        </button>
+                        <span class="font-film-code text-[11px] text-amber-500/80" id="modalCounterText">1 DE 10</span>
+                        <button id="modalNextBtn" class="tactile-btn px-3.5 py-1.5 rounded-lg font-film-code text-xs text-amber-200 flex items-center gap-1.5">
+                            <span>Siguiente</span> <span>▶</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha: Ficha Romántica y Editor de Recuerdo -->
+                <div class="md:col-span-5 p-5 sm:p-6 flex flex-col justify-between bg-stone-950">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="font-film-code text-xs text-amber-500 uppercase tracking-wider">
+                                ✨ NOTA DE REVELADO
+                            </span>
+                            <span class="text-[11px] font-mono text-stone-400">ISO 400 • f/1.8</span>
+                        </div>
+
+                        <!-- Tarjeta tipo cinta de papel / máquina de escribir -->
+                        <div class="masking-tape p-4 rounded-lg mb-5 transform -rotate-1">
+                            <h3 id="modalPreviewTitle" class="font-typewriter text-lg sm:text-xl font-bold text-stone-900 mb-1">
+                                Entrenando juntos 💪❤️
+                            </h3>
+                            <p id="modalPreviewDesc" class="font-serif-vintage italic text-sm text-stone-700">
+                                Pareja en el gimnasio frente al espejo
+                            </p>
+                            <div class="mt-2 pt-2 border-t border-stone-400/40 flex items-center justify-between text-[11px] font-mono text-stone-600">
+                                <span id="modalPreviewDate">Recuerdo Inolvidable</span>
+                                <span>♥ 35MM</span>
+                            </div>
+                        </div>
+
+                        <!-- Formulario para personalizar el texto/fecha del fotograma -->
+                        <div class="space-y-3">
+                            <div>
+                                <label for="editTitleInput" class="block font-film-code text-xs text-amber-300/90 mb-1">
+                                    TÍTULO DEL RECUERDO:
+                                </label>
+                                <input id="editTitleInput" type="text" class="w-full bg-stone-900 border border-stone-700 focus:border-amber-500 rounded-lg px-3 py-2 text-sm text-amber-100 font-typewriter outline-none">
+                            </div>
+
+                            <div>
+                                <label for="editDescInput" class="block font-film-code text-xs text-amber-300/90 mb-1">
+                                    NOTA O DEDICATORIA:
+                                </label>
+                                <textarea id="editDescInput" rows="2" class="w-full bg-stone-900 border border-stone-700 focus:border-amber-500 rounded-lg px-3 py-2 text-sm text-amber-100 font-typewriter outline-none resize-none"></textarea>
+                            </div>
+
+                            <div>
+                                <label for="editDateInput" class="block font-film-code text-xs text-amber-300/90 mb-1">
+                                    FECHA / LUGAR:
+                                </label>
+                                <input id="editDateInput" type="text" class="w-full bg-stone-900 border border-stone-700 focus:border-amber-500 rounded-lg px-3 py-2 text-xs text-amber-100 font-mono outline-none" placeholder="Ej. Nuestro momento favorito">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-stone-800 flex items-center justify-between gap-3">
+                        <button id="saveMemoryBtn" class="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs sm:text-sm font-film-code tracking-wider transition shadow-lg">
+                            💾 GUARDAR EN EL ROLLO
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificación Toast Retro -->
+    <div id="retroToast" class="fixed bottom-5 right-5 z-50 bg-stone-900 border-2 border-amber-500 text-amber-100 px-4 py-3 rounded-xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 font-typewriter text-xs sm:text-sm">
+        <span class="text-xl" id="toastIcon">🎞️</span>
+        <span id="toastMessage">Fotografías reveladas en el rollo</span>
+    </div>
+
+    <!-- LÓGICA DE LA APLICACIÓN -->
+    <script>
+        /**
+         * Datos de los 10 Fotogramas del Rollo de 35mm con los nombres de archivo exactos
+         * y descripciones personalizadas solicitadas.
+         */
+        const filmFramesData = [
+            {
+                id: 0,
+                code: '01A',
+                number: '01',
+                filename: '1000152734.jpg',
+                src: '1000152734.jpg',
+                title: 'Entrenando juntos 💪❤️',
+                subtitle: 'Pareja en el gimnasio frente al espejo',
+                date: 'Compañeros de metas',
+                icon: '💪',
+                accent: '#f59e0b',
+                loaded: true
+            },
+            {
+                id: 1,
+                code: '02A',
+                number: '02',
+                filename: '1000152384.jpg',
+                src: '1000152384.jpg',
+                title: 'Cada detalle tuyo ✨💍',
+                subtitle: 'Caricia y anillo de corazón rojo',
+                date: 'Promesa en tu mano',
+                icon: '💍',
+                accent: '#ef4444',
+                loaded: true
+            },
+            {
+                id: 2,
+                code: '03A',
+                number: '03',
+                filename: '1000147623.jpg',
+                src: '1000147623.jpg',
+                title: 'Día de skincare 🧖‍♀️🧖‍♂️',
+                subtitle: 'Selfie divertida con diademas y parches',
+                date: 'Risas y complicidad',
+                icon: '🫧',
+                accent: '#38bdf8',
+                loaded: true
+            },
+            {
+                id: 3,
+                code: '04A',
+                number: '04',
+                filename: '1000150666.jpg',
+                src: '1000150666.jpg',
+                title: 'Flores y promesas 💐💎',
+                subtitle: 'Mano con anillo frente a ramo de flores',
+                date: 'Detalles del corazón',
+                icon: '💐',
+                accent: '#f43f5e',
+                loaded: true
+            },
+            {
+                id: 4,
+                code: '05A',
+                number: '05',
+                filename: '1000143166.jpg',
+                src: '1000143166.jpg',
+                title: 'Tardes de paz 🌿💋',
+                subtitle: 'Acostados en el pasto abrazados',
+                date: 'Nuestro refugio',
+                icon: '🌿',
+                accent: '#10b981',
+                loaded: true
+            },
+            {
+                id: 5,
+                code: '06A',
+                number: '06',
+                filename: '1000138300.jpg',
+                src: '1000138300.jpg',
+                title: 'Noche elegante 🌙👠',
+                subtitle: 'Beso de noche vestidos de negro',
+                date: 'Bajo las estrellas',
+                icon: '🌙',
+                accent: '#a855f7',
+                loaded: true
+            },
+            {
+                id: 6,
+                code: '07A',
+                number: '07',
+                filename: '1000128626.jpg',
+                src: '1000128626.jpg',
+                title: 'Bajo el arcoíris 🌈🌅',
+                subtitle: 'Beso al atardecer con arcoíris de fondo',
+                date: 'Atardecer mágico',
+                icon: '🌈',
+                accent: '#fb923c',
+                loaded: true
+            },
+            {
+                id: 7,
+                code: '08A',
+                number: '08',
+                filename: '1000113872.jpg',
+                src: '1000113872.jpg',
+                title: 'Sonrisas cómplices 🐾😊',
+                subtitle: 'Selfie sonriendo juntos al aire libre',
+                date: 'Alegría pura',
+                icon: '🐾',
+                accent: '#fbbf24',
+                loaded: true
+            },
+            {
+                id: 8,
+                code: '09A',
+                number: '09',
+                filename: '1000110880.jpg',
+                src: '1000110880.jpg',
+                title: 'En cualquier lugar 🚗❤️',
+                subtitle: 'Beso romántico en el auto',
+                date: 'Viajando juntos',
+                icon: '🚗',
+                accent: '#f87171',
+                loaded: true
+            },
+            {
+                id: 9,
+                code: '10A',
+                number: '10',
+                filename: '1000098318.jpg',
+                src: '1000098318.jpg',
+                title: 'Nosotros 🔥✨',
+                subtitle: 'Selfie frente al espejo con luz cálida',
+                date: 'Por siempre tú y yo',
+                icon: '🔥',
+                accent: '#f59e0b',
+                loaded: true
+            }
+        ];
+
+        // Estado de animación y proyector
+        const state = {
+            isPlaying: true,
+            isHovered: false,
+            isDragging: false,
+            direction: -1, // -1 = mueve hacia la izquierda, 1 = mueve hacia la derecha
+            baseSpeed: 1.0, // multiplicador del usuario
+            currentVelocity: 1.0,
+            scrollOffset: 0,
+            singleSetWidth: 0,
+            currentFilter: 'filter-original',
+            activeModalIndex: 0,
+            targetUploadFrameIndex: null,
+            soundEnabled: false,
+            fallbackCount: 0
+        };
+
+        // Referencias a elementos del DOM
+        const filmStripViewport = document.getElementById('filmStripViewport');
+        const filmStripTrack = document.getElementById('filmStripTrack');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const playPauseIcon = document.getElementById('playPauseIcon');
+        const playPauseLabel = document.getElementById('playPauseLabel');
+        const reverseDirBtn = document.getElementById('reverseDirBtn');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedValueDisplay = document.getElementById('speedValueDisplay');
+        const motorStatusDot = document.getElementById('motorStatusDot');
+        const motorStatusText = document.getElementById('motorStatusText');
+        const directionReadout = document.getElementById('directionReadout');
+        const filterReadout = document.getElementById('filterReadout');
+        const bulkFileInput = document.getElementById('bulkFileInput');
+        const singleFrameFileInput = document.getElementById('singleFrameFileInput');
+        const uploadMultipleBtn = document.getElementById('uploadMultipleBtn');
+        const localFileHelperBanner = document.getElementById('localFileHelperBanner');
+        const contactSheetSection = document.getElementById('contactSheetSection');
+        const contactSheetGrid = document.getElementById('contactSheetGrid');
+        const toggleContactSheetBtn = document.getElementById('toggleContactSheetBtn');
+
+        // Sintetizador Web Audio para clics analógicos de cámara/proyector sin depender de archivos externos
+        let audioCtx = null;
+        function playMechanicalClick(freq = 800, duration = 0.03) {
+            if (!state.soundEnabled) return;
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(140, audioCtx.currentTime + duration);
+
+                gain.gain.setValueAtTime(0.14, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                // Ignorar si el navegador restringe Web Audio
+            }
+        }
+
+        /**
+         * Genera el diseño artístico SVG estilo visor negativo retro en caso de que
+         * el navegador requiera seleccionar los archivos locales manualmente.
+         */
+        function createNegativePlaceholderHTML(frame) {
+            return `
+                <div class="w-full h-full flex flex-col items-center justify-center p-5 text-center relative bg-gradient-to-b from-[#171310] via-[#0e0c0a] to-[#171310] select-none">
+                    <!-- Marcas de visor de cámara de 35mm -->
+                    <div class="absolute inset-3 border border-amber-500/30 pointer-events-none flex flex-col justify-between p-2">
+                        <div class="flex justify-between text-[10px] font-film-code text-amber-400/70">
+                            <span>┌ REC ${frame.code}</span>
+                            <span>ISO 400 ┐</span>
+                        </div>
+                        <!-- Cruz central de enfoque -->
+                        <div class="m-auto w-12 h-12 rounded-full border border-dashed border-amber-500/40 flex items-center justify-center">
+                            <div class="w-1.5 h-1.5 rounded-full bg-amber-500/60"></div>
+                        </div>
+                        <div class="flex justify-between text-[10px] font-film-code text-amber-400/70">
+                            <span>└ ${frame.filename}</span>
+                            <span>f/1.8 ┘</span>
+                        </div>
+                    </div>
+
+                    <div class="z-10 flex flex-col items-center max-w-[230px]">
+                        <div class="w-14 h-14 rounded-full bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-3xl mb-3 shadow-inner">
+                            ${frame.icon}
+                        </div>
+                        <h4 class="font-typewriter text-amber-200 text-base font-bold leading-snug mb-1">
+                            ${frame.title}
+                        </h4>
+                        <p class="text-xs text-amber-100/60 font-serif-vintage italic mb-4">
+                            "${frame.subtitle}"
+                        </p>
+                        <span class="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/35 border border-amber-400/60 text-amber-200 font-film-code text-[11px] transition flex items-center gap-1.5 shadow">
+                            <span>🎞️</span>
+                            <span>Clic para ver / cargar foto</span>
+                        </span>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Crea las 8 perforaciones (sprocket holes) de cada fotograma
+         */
+        function createSprocketsHTML() {
+            let holes = '';
+            for (let i = 0; i < 8; i++) {
+                holes += '<div class="sprocket-hole"></div>';
+            }
+            return `<div class="sprocket-row">${holes}</div>`;
+        }
+
+        /**
+         * Construye el HTML de un fotograma individual del rollo
+         */
+        function buildFilmUnitElement(frame, copyIndex) {
+            const unit = document.createElement('article');
+            unit.className = 'film-unit group';
+            unit.dataset.frameIndex = frame.id;
+            unit.dataset.copy = copyIndex;
+
+            unit.innerHTML = `
+                <!-- Código superior del negativo -->
+                <div class="edge-code-row font-film-code">
+                    <span>KODAK 400 TM</span>
+                    <span class="flex items-center gap-1">▶ ${frame.number}</span>
+                    <span>${frame.code}</span>
+                </div>
+
+                <!-- Perforaciones superiores -->
+                ${createSprocketsHTML()}
+
+                <!-- Ventana del Fotograma -->
+                <div class="frame-window my-1.5">
+                    <img 
+                        src="${frame.src}" 
+                        alt="${frame.title}" 
+                        class="frame-media frame-img-${frame.id}"
+                        loading="eager"
+                    >
+                    <div class="frame-placeholder-${frame.id} hidden w-full h-full">
+                        ${createNegativePlaceholderHTML(frame)}
+                    </div>
+                    <div class="light-leak-overlay"></div>
+
+                    <!-- Etiqueta flotante superior izquierda con número de fotograma -->
+                    <div class="absolute top-2.5 left-2.5 z-10 px-2 py-0.5 rounded bg-black/75 backdrop-blur-sm border border-amber-500/40 font-film-code text-[11px] text-amber-300">
+                        #${frame.code}
+                    </div>
+
+                    <!-- Botón rápido en esquina superior derecha para cambiar foto individual -->
+                    <button 
+                        type="button"
+                        class="change-single-btn absolute top-2.5 right-2.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity px-2.5 py-1 rounded bg-black/80 hover:bg-amber-500 hover:text-black text-amber-200 border border-amber-400/50 font-film-code text-[10px] flex items-center gap-1"
+                        data-frame-id="${frame.id}"
+                        title="Cambiar la foto de este fotograma"
+                    >
+                        <span>📷</span> <span>Cambiar</span>
+                    </button>
+
+                    <!-- Cinta de nota romántica en la parte inferior del fotograma -->
+                    <div class="absolute bottom-0 inset-x-0 z-10 bg-gradient-to-t from-black/95 via-black/80 to-transparent pt-8 pb-3 px-3.5 flex flex-col justify-end">
+                        <div class="flex items-center justify-between gap-2">
+                            <h3 class="frame-title-${frame.id} font-typewriter text-amber-100 text-sm sm:text-base font-bold truncate">
+                                ${frame.title}
+                            </h3>
+                            <span class="text-[10px] font-film-code text-amber-400/90 shrink-0">🔍 AMPLIAR</span>
+                        </div>
+                        <p class="frame-subtitle-${frame.id} font-serif-vintage italic text-xs text-amber-200/80 truncate">
+                            ${frame.subtitle}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Perforaciones inferiores -->
+                ${createSprocketsHTML()}
+
+                <!-- Código inferior del negativo -->
+                <div class="edge-code-row font-film-code">
+                    <span>SAFETY FILM</span>
+                    <span class="frame-date-${frame.id} text-[10px] text-amber-300/80 truncate max-w-[140px]">${frame.date}</span>
+                    <span>══▶ ${frame.code}</span>
+                </div>
+            `;
+
+            // Manejo de carga o error de ruta local para mostrar el placeholder negativo interactivo
+            const imgEl = unit.querySelector('img');
+            const placeholderEl = unit.querySelector(`.frame-placeholder-${frame.id}`);
+
+            imgEl.addEventListener('error', () => {
+                imgEl.classList.add('hidden');
+                placeholderEl.classList.remove('hidden');
+                frame.loaded = false;
+                state.fallbackCount++;
+                localFileHelperBanner.classList.remove('hidden');
+            });
+
+            imgEl.addEventListener('load', () => {
+                imgEl.classList.remove('hidden');
+                placeholderEl.classList.add('hidden');
+                frame.loaded = true;
+            });
+
+            // Evento para cambiar foto individual sin abrir el modal
+            const changeSingleBtn = unit.querySelector('.change-single-btn');
+            changeSingleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                triggerSinglePhotoUpload(frame.id);
+            });
+
+            // Clic en el fotograma abre el Visor de Mesa de Luz (si no se arrastró el rollo)
+            unit.addEventListener('click', () => {
+                if (Math.abs(dragDeltaX) < 6) {
+                    openLightboxModal(frame.id);
+                }
+            });
+
+            return unit;
+        }
+
+        /**
+         * Renderiza el rollo completo duplicando los 10 fotogramas (20 unidades en total)
+         * para lograr un bucle infinito de desplazamiento continuo sin cortes.
+         */
+        function renderFilmStrip() {
+            filmStripTrack.innerHTML = '';
+            // Conjunto A (Original 01A - 10A)
+            filmFramesData.forEach(frame => {
+                filmStripTrack.appendChild(buildFilmUnitElement(frame, 0));
+            });
+            // Conjunto B (Duplicado idéntico para loop continuo perfecto)
+            filmFramesData.forEach(frame => {
+                filmStripTrack.appendChild(buildFilmUnitElement(frame, 1));
+            });
+
+            updateSingleSetMeasurement();
+            renderContactSheet();
+        }
+
+        /**
+         * Calcula el ancho exacto de los primeros 10 fotogramas para envolver la posición sin saltos
+         */
+        function updateSingleSetMeasurement() {
+            const firstUnit = filmStripTrack.querySelector('.film-unit');
+            if (firstUnit) {
+                const unitWidth = firstUnit.getBoundingClientRect().width;
+                state.singleSetWidth = unitWidth * filmFramesData.length;
+            }
+        }
+
+        /**
+         * Bucle principal de animación del rollo fotográfico (requestAnimationFrame)
+         */
+        let lastTimestamp = performance.now();
+        function animateFilmRoll(now) {
+            const dt = Math.min((now - lastTimestamp) / 16.667, 3);
+            lastTimestamp = now;
+
+            if (!state.isDragging && state.singleSetWidth > 0) {
+                // Determinar velocidad objetivo (desacelera suavemente al pasar el cursor)
+                let targetVelocity = 0;
+                if (state.isPlaying) {
+                    const hoverFactor = state.isHovered ? 0.15 : 1.0;
+                    targetVelocity = state.baseSpeed * hoverFactor * state.direction * 1.35;
+                }
+
+                // Interpolación suave de inercia analógica
+                state.currentVelocity += (targetVelocity - state.currentVelocity) * 0.08;
+
+                state.scrollOffset += state.currentVelocity * dt;
+                normalizeScrollOffset();
+                filmStripTrack.style.transform = `translate3d(${state.scrollOffset}px, 0, 0)`;
+            }
+
+            requestAnimationFrame(animateFilmRoll);
+        }
+
+        /**
+         * Mantiene el desplazamiento dentro de [-singleSetWidth, 0] para bucle infinito
+         */
+        function normalizeScrollOffset() {
+            if (state.singleSetWidth <= 0) return;
+            if (state.scrollOffset <= -state.singleSetWidth) {
+                state.scrollOffset += state.singleSetWidth;
+            } else if (state.scrollOffset > 0) {
+                state.scrollOffset -= state.singleSetWidth;
+            }
+        }
+
+        // Eventos de desaceleración suave al pasar el cursor sobre el rollo
+        filmStripViewport.addEventListener('mouseenter', () => {
+            state.isHovered = true;
+            if (state.isPlaying) {
+                motorStatusText.textContent = 'MOTOR: DESACELERANDO (INSPECCIÓN)';
+                motorStatusDot.className = 'w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_#fbbf24]';
+            }
+        });
+
+        filmStripViewport.addEventListener('mouseleave', () => {
+            state.isHovered = false;
+            state.isDragging = false;
+            updateMotorStatusUI();
+        });
+
+        // Soporte para arrastrar el rollo manualmente con mouse o pantalla táctil
+        let dragStartX = 0;
+        let dragInitialOffset = 0;
+        let dragDeltaX = 0;
+
+        filmStripViewport.addEventListener('pointerdown', (e) => {
+            if (e.target.closest('button')) return;
+            state.isDragging = true;
+            dragStartX = e.clientX;
+            dragInitialOffset = state.scrollOffset;
+            dragDeltaX = 0;
+        });
+
+        window.addEventListener('pointermove', (e) => {
+            if (!state.isDragging) return;
+            dragDeltaX = e.clientX - dragStartX;
+            state.scrollOffset = dragInitialOffset + dragDeltaX;
+            normalizeScrollOffset();
+            filmStripTrack.style.transform = `translate3d(${state.scrollOffset}px, 0, 0)`;
+        });
+
+        window.addEventListener('pointerup', () => {
+            state.isDragging = false;
+        });
+
+        // Controles del Panel Analógico
+        function updateMotorStatusUI() {
+            if (state.isPlaying) {
+                playPauseIcon.textContent = '⏸';
+                playPauseLabel.textContent = 'PAUSAR ROLLO';
+                motorStatusText.textContent = 'MOTOR: EN MARCHA';
+                motorStatusDot.className = 'w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]';
+            } else {
+                playPauseIcon.textContent = '▶';
+                playPauseLabel.textContent = 'REPRODUCIR ROLLO';
+                motorStatusText.textContent = 'MOTOR: EN PAUSA';
+                motorStatusDot.className = 'w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]';
+            }
+        }
+
+        playPauseBtn.addEventListener('click', () => {
+            state.isPlaying = !state.isPlaying;
+            playMechanicalClick(620, 0.04);
+            updateMotorStatusUI();
+        });
+
+        reverseDirBtn.addEventListener('click', () => {
+            state.direction *= -1;
+            playMechanicalClick(520, 0.04);
+            directionReadout.textContent = state.direction === -1 ? '◀ IZQUIERDA' : 'DERECHA ▶';
+        });
+
+        // Botones de paso de un fotograma
+        document.getElementById('stepPrevBtn').addEventListener('click', () => {
+            playMechanicalClick(750, 0.03);
+            const step = (state.singleSetWidth / filmFramesData.length) || 360;
+            state.scrollOffset += step;
+            normalizeScrollOffset();
+            filmStripTrack.style.transform = `translate3d(${state.scrollOffset}px, 0, 0)`;
+        });
+
+        document.getElementById('stepNextBtn').addEventListener('click', () => {
+            playMechanicalClick(750, 0.03);
+            const step = (state.singleSetWidth / filmFramesData.length) || 360;
+            state.scrollOffset -= step;
+            normalizeScrollOffset();
+            filmStripTrack.style.transform = `translate3d(${state.scrollOffset}px, 0, 0)`;
+        });
+
+        // Control deslizante de velocidad
+        speedSlider.addEventListener('input', (e) => {
+            state.baseSpeed = parseFloat(e.target.value);
+            speedValueDisplay.textContent = `${state.baseSpeed.toFixed(1)}x`;
+        });
+
+        // Selector de Filtro Fotográfico para todo el rollo y el modal
+        const filterButtons = document.querySelectorAll('.filter-chip');
+        const modalMediaWrapper = document.getElementById('modalMediaWrapper');
+
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                playMechanicalClick(900, 0.025);
+                const selectedFilter = btn.dataset.filter;
+                const label = btn.dataset.label;
+
+                // Actualizar estado activo de botones
+                filterButtons.forEach(b => b.classList.remove('active-btn'));
+                btn.classList.add('active-btn');
+
+                // Aplicar clase al rollo y al visor de mesa de luz
+                filmStripViewport.classList.remove('filter-original', 'filter-vintage70s', 'filter-sepia', 'filter-bw', 'filter-negative');
+                modalMediaWrapper.classList.remove('filter-original', 'filter-vintage70s', 'filter-sepia', 'filter-bw', 'filter-negative');
+
+                filmStripViewport.classList.add(selectedFilter);
+                modalMediaWrapper.classList.add(selectedFilter);
+
+                state.currentFilter = selectedFilter;
+                filterReadout.textContent = label;
+            });
+        });
+
+        // Modo Luz Roja de Cuarto Oscuro
+        const safelightBtn = document.getElementById('safelightBtn');
+        safelightBtn.addEventListener('click', () => {
+            playMechanicalClick(480, 0.04);
+            document.body.classList.toggle('safelight-mode');
+            safelightBtn.classList.toggle('active-btn');
+        });
+
+        // Efectos de sonido sintetizados
+        const soundToggleBtn = document.getElementById('soundToggleBtn');
+        const soundIcon = document.getElementById('soundIcon');
+        const soundLabel = document.getElementById('soundLabel');
+
+        soundToggleBtn.addEventListener('click', () => {
+            state.soundEnabled = !state.soundEnabled;
+            soundToggleBtn.classList.toggle('active-btn', state.soundEnabled);
+            soundIcon.textContent = state.soundEnabled ? '🔊' : '🔇';
+            soundLabel.textContent = state.soundEnabled ? 'SONIDO ON' : 'SONIDO OFF';
+            if (state.soundEnabled) playMechanicalClick(880, 0.04);
+        });
+
+        /**
+         * CARGA GARANTIZADA DE FOTOS LOCALES (Múltiples de golpe o Individuales)
+         */
+        uploadMultipleBtn.addEventListener('click', () => {
+            playMechanicalClick(700, 0.03);
+            bulkFileInput.click();
+        });
+
+        function triggerSinglePhotoUpload(frameId) {
+            state.targetUploadFrameIndex = frameId;
+            singleFrameFileInput.click();
+        }
+
+        // Procesar un solo archivo para un fotograma específico
+        singleFrameFileInput.addEventListener('change', (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file || state.targetUploadFrameIndex === null) return;
+
+            const objectUrl = URL.createObjectURL(file);
+            updateFrameImageSource(state.targetUploadFrameIndex, objectUrl);
+            showRetroToast(`Fotograma ${filmFramesData[state.targetUploadFrameIndex].code} actualizado ✨`);
+            singleFrameFileInput.value = '';
+        });
+
+        // Procesar múltiples archivos seleccionados a la vez
+        bulkFileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files || []);
+            if (files.length > 0) {
+                assignUploadedFilesToRoll(files);
+            }
+            bulkFileInput.value = '';
+        });
+
+        /**
+         * Asigna inteligentemente los archivos subidos a los 10 fotogramas:
+         * 1. Primero busca coincidencias por nombre de archivo (ej. '1000152734.jpg').
+         * 2. Los archivos restantes se asignan secuencialmente a los fotogramas del rollo.
+         */
+        function assignUploadedFilesToRoll(files) {
+            const usedFrameIds = new Set();
+            const unmatchedFiles = [];
+
+            // Paso 1: Emparejar por nombre exacto o parcial
+            files.forEach(file => {
+                const cleanName = file.name.toLowerCase().trim();
+                const matchedFrame = filmFramesData.find(f => 
+                    !usedFrameIds.has(f.id) && 
+                    (cleanName === f.filename.toLowerCase() || cleanName.includes(f.filename.replace('.jpg', '').toLowerCase()))
+                );
+
+                if (matchedFrame) {
+                    const url = URL.createObjectURL(file);
+                    updateFrameImageSource(matchedFrame.id, url);
+                    usedFrameIds.add(matchedFrame.id);
+                } else {
+                    unmatchedFiles.push(file);
+                }
+            });
+
+            // Paso 2: Rellenar en orden los fotogramas restantes con los demás archivos seleccionados
+            let fileCursor = 0;
+            for (let i = 0; i < filmFramesData.length && fileCursor < unmatchedFiles.length; i++) {
+                if (!usedFrameIds.has(i)) {
+                    const url = URL.createObjectURL(unmatchedFiles[fileCursor]);
+                    updateFrameImageSource(i, url);
+                    usedFrameIds.add(i);
+                    fileCursor++;
+                }
+            }
+
+            localFileHelperBanner.classList.add('hidden');
+            playMechanicalClick(920, 0.05);
+            showRetroToast(`¡${Math.min(files.length, 10)} fotografías reveladas en el rollo de 35mm!`);
+        }
+
+        /**
+         * Actualiza la imagen de un fotograma tanto en las dos copias del rollo continuo
+         * como en la hoja de contacto y en el visor de Mesa de Luz si está abierto.
+         */
+        function updateFrameImageSource(frameId, newSrc) {
+            const frame = filmFramesData[frameId];
+            if (!frame) return;
+            frame.src = newSrc;
+            frame.loaded = true;
+
+            // Actualizar todas las copias en el rollo en movimiento
+            document.querySelectorAll(`.frame-img-${frameId}`).forEach(img => {
+                img.src = newSrc;
+                img.classList.remove('hidden');
+            });
+            document.querySelectorAll(`.frame-placeholder-${frameId}`).forEach(ph => {
+                ph.classList.add('hidden');
+            });
+
+            // Si el modal está abierto en este fotograma, actualizarlo también
+            if (!lightboxModal.classList.contains('hidden') && state.activeModalIndex === frameId) {
+                populateLightboxModal(frameId);
+            }
+
+            renderContactSheet();
+        }
+
+        // Soporte Drag & Drop en toda la ventana
+        const dropZoneOverlay = document.getElementById('dropZoneOverlay');
+        let dragCounter = 0;
+
+        window.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            dragCounter++;
+            dropZoneOverlay.classList.remove('hidden');
+            dropZoneOverlay.classList.add('flex');
+        });
+
+        window.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        window.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dragCounter--;
+            if (dragCounter <= 0) {
+                dragCounter = 0;
+                dropZoneOverlay.classList.add('hidden');
+                dropZoneOverlay.classList.remove('flex');
+            }
+        });
+
+        window.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dragCounter = 0;
+            dropZoneOverlay.classList.add('hidden');
+            dropZoneOverlay.classList.remove('flex');
+
+            const droppedFiles = Array.from(e.dataTransfer.files || []).filter(f => f.type.startsWith('image/'));
+            if (droppedFiles.length > 0) {
+                assignUploadedFilesToRoll(droppedFiles);
+            }
+        });
+
+        document.getElementById('dismissBannerBtn').addEventListener('click', () => {
+            localFileHelperBanner.classList.add('hidden');
+        });
+
+        /**
+         * MODAL / VISOR DE MESA DE LUZ (LIGHTBOX) Y EDICIÓN DE RECUERDOS
+         */
+        const lightboxModal = document.getElementById('lightboxModal');
+        const modalFrameCode = document.getElementById('modalFrameCode');
+        const modalFileName = document.getElementById('modalFileName');
+        const modalImage = document.getElementById('modalImage');
+        const modalPlaceholder = document.getElementById('modalPlaceholder');
+        const modalCounterText = document.getElementById('modalCounterText');
+        const modalPreviewTitle = document.getElementById('modalPreviewTitle');
+        const modalPreviewDesc = document.getElementById('modalPreviewDesc');
+        const modalPreviewDate = document.getElementById('modalPreviewDate');
+        const editTitleInput = document.getElementById('editTitleInput');
+        const editDescInput = document.getElementById('editDescInput');
+        const editDateInput = document.getElementById('editDateInput');
+
+        function openLightboxModal(frameIndex) {
+            playMechanicalClick(840, 0.035);
+            state.activeModalIndex = frameIndex;
+            populateLightboxModal(frameIndex);
+            lightboxModal.classList.remove('hidden');
+            lightboxModal.classList.add('flex');
+        }
+
+        function closeLightboxModal() {
+            playMechanicalClick(520, 0.03);
+            lightboxModal.classList.add('hidden');
+            lightboxModal.classList.remove('flex');
+        }
+
+        function populateLightboxModal(frameIndex) {
+            const frame = filmFramesData[frameIndex];
+            if (!frame) return;
+
+            modalFrameCode.textContent = `FOTOGRAMA ${frame.code}`;
+            modalFileName.textContent = `ARCHIVO: ${frame.filename}`;
+            modalCounterText.textContent = `${frameIndex + 1} DE ${filmFramesData.length}`;
+
+            modalPreviewTitle.textContent = frame.title;
+            modalPreviewDesc.textContent = frame.subtitle;
+            modalPreviewDate.textContent = frame.date;
+
+            editTitleInput.value = frame.title;
+            editDescInput.value = frame.subtitle;
+            editDateInput.value = frame.date;
+
+            if (frame.loaded) {
+                modalImage.src = frame.src;
+                modalImage.classList.remove('hidden');
+                modalPlaceholder.classList.add('hidden');
+            } else {
+                modalImage.classList.add('hidden');
+                modalPlaceholder.innerHTML = createNegativePlaceholderHTML(frame);
+                modalPlaceholder.classList.remove('hidden');
+                modalPlaceholder.onclick = () => triggerSinglePhotoUpload(frame.id);
+            }
+        }
+
+        // Vista previa en vivo mientras se edita el recuerdo en el modal
+        editTitleInput.addEventListener('input', () => {
+            modalPreviewTitle.textContent = editTitleInput.value || 'Sin título';
+        });
+        editDescInput.addEventListener('input', () => {
+            modalPreviewDesc.textContent = editDescInput.value || '';
+        });
+        editDateInput.addEventListener('input', () => {
+            modalPreviewDate.textContent = editDateInput.value || '';
+        });
+
+        // Guardar cambios del recuerdo en el fotograma
+        document.getElementById('saveMemoryBtn').addEventListener('click', () => {
+            const idx = state.activeModalIndex;
+            const frame = filmFramesData[idx];
+            frame.title = editTitleInput.value.trim() || frame.title;
+            frame.subtitle = editDescInput.value.trim() || frame.subtitle;
+            frame.date = editDateInput.value.trim() || frame.date;
+
+            // Actualizar texto en ambas copias del rollo continuo
+            document.querySelectorAll(`.frame-title-${idx}`).forEach(el => el.textContent = frame.title);
+            document.querySelectorAll(`.frame-subtitle-${idx}`).forEach(el => el.textContent = frame.subtitle);
+            document.querySelectorAll(`.frame-date-${idx}`).forEach(el => el.textContent = frame.date);
+
+            renderContactSheet();
+            playMechanicalClick(960, 0.04);
+            showRetroToast(`Nota del fotograma ${frame.code} guardada ❤️`);
+        });
+
+        // Navegación dentro del modal
+        document.getElementById('modalPrevBtn').addEventListener('click', () => {
+            playMechanicalClick(720, 0.025);
+            state.activeModalIndex = (state.activeModalIndex - 1 + filmFramesData.length) % filmFramesData.length;
+            populateLightboxModal(state.activeModalIndex);
+        });
+
+        document.getElementById('modalNextBtn').addEventListener('click', () => {
+            playMechanicalClick(720, 0.025);
+            state.activeModalIndex = (state.activeModalIndex + 1) % filmFramesData.length;
+            populateLightboxModal(state.activeModalIndex);
+        });
+
+        document.getElementById('modalChangePhotoBtn').addEventListener('click', () => {
+            triggerSinglePhotoUpload(state.activeModalIndex);
+        });
+
+        document.getElementById('closeModalBtn').addEventListener('click', closeLightboxModal);
+        lightboxModal.addEventListener('click', (e) => {
+            if (e.target === lightboxModal) closeLightboxModal();
+        });
+
+        // Teclas de acceso rápido (Escape y flechas en el modal)
+        window.addEventListener('keydown', (e) => {
+            if (lightboxModal.classList.contains('hidden')) return;
+            if (e.key === 'Escape') closeLightboxModal();
+            if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+            if (e.key === 'ArrowLeft') document.getElementById('modalPrevBtn').click();
+            if (e.key === 'ArrowRight') document.getElementById('modalNextBtn').click();
+        });
+
+        /**
+         * HOJA DE CONTACTO (Vista de cuadrícula estilo cuarto oscuro de los 10 fotogramas)
+         */
+        toggleContactSheetBtn.addEventListener('click', () => {
+            playMechanicalClick(680, 0.03);
+            contactSheetSection.classList.toggle('hidden');
+            if (!contactSheetSection.classList.contains('hidden')) {
+                contactSheetSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        });
+
+        function renderContactSheet() {
+            contactSheetGrid.innerHTML = '';
+            filmFramesData.forEach(frame => {
+                const card = document.createElement('div');
+                card.className = 'bg-[#12100e] border border-stone-800 hover:border-amber-500/70 rounded-xl p-2.5 cursor-pointer transition group flex flex-col justify-between shadow-md';
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between text-[10px] font-film-code text-amber-400 mb-1.5">
+                            <span>▶ ${frame.code}</span>
+                            <span class="text-stone-500">${frame.filename}</span>
+                        </div>
+                        <div class="h-32 w-full bg-black rounded overflow-hidden relative mb-2 border border-stone-800">
+                            ${frame.loaded 
+                                ? `<img src="${frame.src}" alt="${frame.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">`
+                                : `<div class="w-full h-full flex flex-col items-center justify-center text-center p-2 bg-stone-950">
+                                     <span class="text-2xl mb-1">${frame.icon}</span>
+                                     <span class="text-[10px] font-film-code text-amber-300">Clic para cargar</span>
+                                   </div>`
+                            }
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-typewriter text-xs text-amber-100 font-bold truncate">${frame.title}</h4>
+                        <p class="font-serif-vintage italic text-[11px] text-amber-200/60 truncate">${frame.subtitle}</p>
+                    </div>
+                `;
+                card.addEventListener('click', () => openLightboxModal(frame.id));
+                contactSheetGrid.appendChild(card);
+            });
+        }
+
+        /**
+         * Toast de notificación estilo retro
+         */
+        let toastTimeout = null;
+        function showRetroToast(message) {
+            const toast = document.getElementById('retroToast');
+            const msgEl = document.getElementById('toastMessage');
+            msgEl.textContent = message;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3400);
+        }
+
+        // Recalcular dimensiones cuando cambia el tamaño de la ventana
+        window.addEventListener('resize', () => {
+            updateSingleSetMeasurement();
+        });
+
+        // Inicialización al cargar la página
+        window.onload = function () {
+            renderFilmStrip();
+            updateSingleSetMeasurement();
+            requestAnimationFrame(animateFilmRoll);
+        };
+    </script>
+</body>
+</html>
